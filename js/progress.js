@@ -25,12 +25,33 @@ class ProgressSystem {
             presents: 0,
             unlockedSkins: ['default'],
             selectedSkin: 'default',
-            maxLevel: 0 // 0-based index of highest unlocked/completed level
+            maxLevel: 0, // 0-based index of highest unlocked/completed level
+            collectedPresents: [] // Unique IDs
         };
     }
 
     save() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+    }
+
+    // Persistent Present Logic
+    getPresentId(level, r, c) {
+        return `${level}_${r}_${c}`;
+    }
+
+    collectPresent(level, r, c) {
+        if (!this.data.collectedPresents) this.data.collectedPresents = [];
+        const id = this.getPresentId(level, r, c);
+        if (!this.data.collectedPresents.includes(id)) {
+            this.data.collectedPresents.push(id);
+            this.addPresents(1);
+        }
+    }
+
+    isPresentCollected(level, r, c) {
+        if (!this.data.collectedPresents) return false;
+        const id = this.getPresentId(level, r, c);
+        return this.data.collectedPresents.includes(id);
     }
 
     completeLevel(index) {

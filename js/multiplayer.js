@@ -1,6 +1,6 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
+import { getDatabase, ref, set, onValue, onDisconnect, remove, push } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
 
 const firebaseConfig = {
     databaseURL: "https://santatracker-5f4e4-default-rtdb.firebaseio.com",
@@ -20,6 +20,7 @@ export class Multiplayer {
         //    data: { name, level, timestamp } 
         // }
         this.players = {};
+        this.bombs = {}; // Local store of network bombs
 
         this.lastUpdate = 0;
 
@@ -33,6 +34,12 @@ export class Multiplayer {
             const allPlayersRef = ref(this.db, 'players');
             onValue(allPlayersRef, (snapshot) => {
                 this.handleServerUpdate(snapshot.val());
+            });
+
+            // Bombs Refs
+            this.bombsRef = ref(this.db, 'bombs');
+            onValue(this.bombsRef, (snapshot) => {
+                this.bombs = snapshot.val() || {};
             });
 
         } catch (e) {
@@ -175,5 +182,23 @@ export class Multiplayer {
             }
         });
         return renderList;
+    }
+
+    placeBomb(x, y, level) {
+        if (!this.bombsRef) return;
+        const newBombRef = push(this.bombsRef);
+        set(newBombRef, {
+            x: Math.round(x),
+            y: Math.round(y),
+            level: level,
+            ownerId: this.id,
+            placedAt: Date.now()
+        });
+    }
+
+    removeBomb(bombId) {
+        if (!this.db) return;
+        const bRef = ref(this.db, 'bombs/' + bombId);
+        remove(bRef);
     }
 }
