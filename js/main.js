@@ -115,6 +115,42 @@ async function init() {
             requestFullscreen(document.documentElement);
         });
     }
+
+    // CHECK FOR EDITOR TEST MODE
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('test')) {
+        const rawLevel = localStorage.getItem('penguin_test_level');
+        if (rawLevel) {
+            try {
+                const levelData = JSON.parse(rawLevel);
+                console.log("Loading custom level from editor...");
+
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('hud').classList.remove('hidden');
+
+                // Add a "Back to Editor" button
+                const backBtn = document.createElement('button');
+                backBtn.innerText = "BACK TO EDITOR";
+                backBtn.style.position = "absolute";
+                backBtn.style.top = "10px";
+                backBtn.style.left = "10px";
+                backBtn.style.zIndex = "1000";
+                backBtn.style.padding = "10px";
+                backBtn.style.background = "#ffcc00";
+                backBtn.style.border = "2px solid #fff";
+                backBtn.style.borderRadius = "5px";
+                backBtn.style.cursor = "pointer";
+                backBtn.style.fontWeight = "bold";
+                backBtn.onclick = () => window.location.href = 'editor.html';
+                document.body.appendChild(backBtn);
+
+                game.loadCustomLevel(levelData);
+
+            } catch (e) {
+                console.error("Failed to load custom level", e);
+            }
+        }
+    }
 }
 
 init();

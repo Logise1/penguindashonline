@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Level Editor - Penguin Dash</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #222;
+            color: #fff;
+            margin: 0;
+            height: 100vh;
+        }
+
+        #toolbar {
+            padding: 1rem;
+            background: #333;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        #editor-container {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: #111;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        #palette {
+            display: flex;
+            gap: 5px;
+            background: #444;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .tile-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #666;
+            background-color: #222;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tile-btn:hover {
+            border-color: #888;
+        }
+
+        .tile-btn.active {
+            border-color: #00ffcc;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        #grid {
+            display: grid;
+            gap: 1px;
+            background: #333;
+            border: 2px solid #555;
+            align-self: flex-start;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: #000;
+            background-size: cover;
+            image-rendering: pixelated;
+        }
+
+        .cell:hover {
+            filter: brightness(1.2);
+            outline: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input {
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toolbar">
+        <div class="controls">
+            <button id="back-btn" class="btn" onclick="window.location.href='index.html'">BACK</button>
+            <button id="test-btn" class="btn" style="background: var(--accent-color);">TEST LEVEL</button>
+            <button id="clear-btn" class="btn" style="background:#ff4444;">CLEAR</button>
+        </div>
+
+        <div style="width: 20px;"></div>
+
+        <div id="palette"></div>
+
+        <div style="width: 20px;"></div>
+
+        <div class="controls">
+            <input type="number" id="w-input" value="8" min="3" max="50" style="width:50px">
+            <span>x</span>
+            <input type="number" id="h-input" value="20" min="5" max="200" style="width:50px">
+            <button id="resize-btn" class="btn" style="font-size: 0.8rem; padding: 0.5rem;">RESIZE</button>
+        </div>
+
+        <button id="copy-btn" class="btn" style="font-size: 0.8rem; padding: 0.5rem; margin-left: auto;">COPY
+            JSON</button>
+    </div>
+
+    <div id="editor-container">
+        <div id="grid"></div>
+    </div>
+
+    <script type="module" src="js/editor.js"></script>
+</body>
+
+</html>

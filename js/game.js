@@ -58,6 +58,38 @@ export class Game {
         this.cols = this.level[0].length;
     }
 
+    loadCustomLevel(grid) {
+        this.currentLevelIndex = -1; // Indicator for custom
+        this.customLevelData = grid; // Save for restart
+        this.level = JSON.parse(JSON.stringify(grid));
+        this.rows = this.level.length;
+        this.cols = this.level[0].length;
+
+        // Reset player pos
+        this.findStartPos();
+        if (this.player.x === 0 && this.player.y === 0) {
+            // If no start found, default to center first tile
+            this.player.x = 128;
+            this.player.y = 128;
+        }
+
+        this.state = 'PLAYING';
+        this.score = 0;
+        this.player.vx = 0;
+        this.player.vy = 0;
+        this.player.state = 'IDLE';
+        this.player.angle = 0;
+        this.player.frame = 0;
+        this.lastTime = 0;
+
+        // Music
+        this.assets.stop('bg_menu');
+        this.assets.play('bg_game', true, 0.4);
+
+        if (!this.rafId) this.loop(0);
+    }
+
+
     findStartPos() {
         if (!this.level) return;
         for (let r = 0; r < this.rows; r++) {
@@ -97,7 +129,20 @@ export class Game {
             this.score = 0;
         }
 
-        this.loadLevel(this.currentLevelIndex);
+        if (this.currentLevelIndex === -1 && this.customLevelData) {
+            // Reload custom level without full init overhead if confusing
+            // Actually just re-parse is fine, loadCustomLevel does that.
+            // But loadCustomLevel calls loop(0) again, we might want to avoid double loop check or just trust it.
+            // Let's call internal helper or just re-run loadCustomLevel logic manually?
+            // loadCustomLevel resets everything. 
+            // We should just load the map data here.
+
+            this.level = JSON.parse(JSON.stringify(this.customLevelData));
+            this.rows = this.level.length;
+            this.cols = this.level[0].length;
+        } else {
+            this.loadLevel(this.currentLevelIndex);
+        }
 
         this.state = 'PLAYING';
         // this.score = 0; // Dont reset score on restart level
