@@ -269,7 +269,7 @@ const L15 = parseMap(`
     I.P..I
    I....I
    I=P.I
-  I...I
+  I....I
   I.P.I
    I..=I
    I.P..I
