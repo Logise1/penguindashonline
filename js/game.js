@@ -225,6 +225,28 @@ export class Game {
         return true;
     }
 
+    createExplosion(x, y) {
+        // Particle System
+        if (!this.particles) this.particles = [];
+        // Center of bomb
+        const px = x;
+        const py = y;
+
+        for (let i = 0; i < 30; i++) {
+            this.particles.push({
+                x: px + (Math.random() - 0.5) * 50,
+                y: py + (Math.random() - 0.5) * 50,
+                vx: (Math.random() - 0.5) * 800,
+                vy: (Math.random() - 0.5) * 800,
+                life: 0.8,
+                color: Math.random() > 0.5 ? '#ff4444' : '#ffff00',
+                size: Math.random() * 15 + 5
+            });
+        }
+        this.shake = 0.4; // Screen wake
+        this.assets.play('crash');
+    }
+
     update(dt) {
         // Update Shake
         if (this.shake > 0) {
