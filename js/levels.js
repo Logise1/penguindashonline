@@ -283,10 +283,10 @@ const L16 = parseMap(`
   IIIIII
   I.S..I
   I.P..I
-  I####I
+  I.###I
   I.PC.I
   I....I
-  I####I
+  I#..#I
   I.C.PI
   I....I
   I.F..I
@@ -301,7 +301,7 @@ const L17 = parseMap(`
    I...I
    I.P.I
    I.#.I
-   I#.#I
+   I..#I
    I.P.I
    I...I
    I.F.I
@@ -401,10 +401,10 @@ const L24 = parseMap(`
   IPI
   I=I
   IPI
-  I#I
+  I.I
   IPI
   I.I
-  I#I
+  I.I
   IPI
   IFI
   III
