@@ -8,8 +8,10 @@ export const ASSETS = {
     start: 'img/element-start.png',
     finish: 'img/element-finish.png',
     tree: 'img/element-tree1.png',
-    coal: 'img/element-coal1.png',
-    snow: 'img/element-snow1.png'
+    coal: 'img/element-tree1.png',
+    snow: 'img/element-snow1.png',
+    iceblock: 'img/element-sm_iceberg.png',
+    iceberg: 'img/element-iceberg.png'
 };
 
 export const AUDIO_ASSETS = {
@@ -72,6 +74,19 @@ export class AssetLoader {
         });
 
         await Promise.all([...imagePromises, ...audioPromises]);
+
+        // Ensure placeholders for any missing assets to prevent invisible crashes
+        const placeholder = new Image();
+        // 1x1 magenta pixel base64
+        placeholder.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM/z/C/HgAggQEw29XFAAAAAElFTkSuQmCC';
+
+        for (let key in ASSETS) {
+            if (!this.images[key]) {
+                console.warn(`Asset ${key} missing, using placeholder.`);
+                this.images[key] = placeholder;
+            }
+        }
+
         return { images: this.images, audio: this.audio };
     }
 
@@ -85,7 +100,7 @@ export class AssetLoader {
 
     play(key, loop = false, volume = 1.0, restart = true) {
         const sound = this.audio[key];
-        if (sound) {
+        if (sound && typeof sound.play === 'function') {
             if (!restart && !sound.paused) {
                 // Already playing, just ensure volume/loop correct? 
                 sound.loop = loop;
@@ -103,7 +118,7 @@ export class AssetLoader {
 
     stop(key) {
         const sound = this.audio[key];
-        if (sound) {
+        if (sound && typeof sound.pause === 'function') {
             sound.pause();
             sound.currentTime = 0;
         }

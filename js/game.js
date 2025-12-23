@@ -277,7 +277,7 @@ export class Game {
 
             // Check Obstacles
             const tile = this.level[safeRow][safeCol];
-            if (tile === TILE_TYPES.OBSTACLE) {
+            if (tile === TILE_TYPES.OBSTACLE || tile === TILE_TYPES.ICE_BLOCK || tile === TILE_TYPES.ICEBERG) {
                 // Bounce or crash? Let's crash.
                 if (this.player.state !== 'CRASH') {
                     this.player.state = 'CRASH';
@@ -289,9 +289,21 @@ export class Game {
             }
 
             if (tile === TILE_TYPES.COAL) {
-                // Slow down or score penalty?
-                this.player.vx *= 0.5;
-                this.player.vy *= 0.5;
+                // Bounce off "Tree"
+                // Reverse velocity (BOUNCE!)
+                // Add some randomness or energy loss? nah, clear bounce using 0.8
+                this.player.vx *= -0.8;
+                this.player.vy *= -0.8;
+
+                // Push player out of the tile to prevent getting stuck
+                // We move them 2 steps worth of distance "forward" in the NEW direction (which is backward relative to entry)
+                this.player.x += this.player.vx * dt * 2;
+                this.player.y += this.player.vy * dt * 2;
+
+                // Play soft crash or bump sound
+                // Reuse crash but with lower volume? Or 'die' sound but not dying?
+                // Let's reuse crash but controlled
+                this.assets.play('crash', false, 0.4);
             }
 
             // Check Win
@@ -388,7 +400,12 @@ export class Game {
                     // Draw Floor
                     if (tile === TILE_TYPES.SNOW) {
                         this.ctx.drawImage(this.assets.get('snow'), x, y, TILE_SIZE, TILE_SIZE);
+                    } else if (tile === TILE_TYPES.ICEBERG) {
+                        // Iceberg might be in "water" so we don't draw ice floor.
+                        // But if we want it to look like it's floating, just draw the iceberg.
+                        this.ctx.drawImage(this.assets.get('iceberg'), x, y, TILE_SIZE, TILE_SIZE);
                     } else {
+                        // All others have ICE floor
                         this.ctx.drawImage(this.assets.get('ice'), x, y, TILE_SIZE, TILE_SIZE);
                     }
 
@@ -398,9 +415,15 @@ export class Game {
                     } else if (tile === TILE_TYPES.FINISH) {
                         this.ctx.drawImage(this.assets.get('finish'), x, y, TILE_SIZE, TILE_SIZE);
                     } else if (tile === TILE_TYPES.COAL) {
-                        this.ctx.drawImage(this.assets.get('coal'), x + 20, y + 20, TILE_SIZE - 40, TILE_SIZE - 40);
+                        // COAL is now TREE visually (as per user request "cambia todo el coal por img/tree.png")
+                        // assets.get('coal') returns tree image now.
+                        // We draw it slightly smaller/centered like an object
+                        this.ctx.drawImage(this.assets.get('coal'), x + 20, y - 40, TILE_SIZE - 40, TILE_SIZE);
                     } else if (tile === TILE_TYPES.PRESENT) {
-                        this.ctx.drawImage(this.assets.get('present'), x + 20, y + 20, TILE_SIZE - 40, TILE_SIZE - 40);
+                        this.ctx.drawImage(this.assets.get('present'), x + 30, y + 30, TILE_SIZE - 60, TILE_SIZE - 60);
+                    } else if (tile === TILE_TYPES.ICE_BLOCK) {
+                        // Draw Ice Block
+                        this.ctx.drawImage(this.assets.get('iceblock'), x, y, TILE_SIZE, TILE_SIZE);
                     }
                 }
             }
@@ -449,6 +472,20 @@ export class Game {
                         const drawY = y - TILE_SIZE * 0.25; // Shift up slightly more to look "grounded" on the shadow
 
                         this.ctx.drawImage(this.assets.get('snowman'), drawX, drawY, drawW, drawH);
+                    }
+                    // COAL (Tree) and ICE_BLOCK are also tallish, maybe draw here?
+                    // If we moved COAL drawing to "Floor" loop it acts as floor decal. But user wants Tree. Trees are tall. 
+                    // I moved COAL to the "Static Objects" loop in the replacement above, which draws BEFORE player.
+                    // The OBSTACLE loop draws AFTER player. 
+                    // If I want Trees to cover player, I should move COAL drawing here.
+                    // The user request was "change coal for tree.png". 
+                    // Let's duplicate the check for correct layering or just keep as is. Use common sense: trees should occlude player if player is behind.
+                    // But player is usually *on* the tile.
+                    // I'll stick to drawing them in the main loop for now to be safe, or if I want to match Snowman:
+
+                    if (tile === TILE_TYPES.COAL) {
+                        // Draw Tree again on top? No, that would be double draw.
+                        // I drew it in the previous loop.
                     }
                 }
             }
