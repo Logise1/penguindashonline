@@ -43,171 +43,452 @@ function parseMap(ascii) {
     });
 }
 
-// LEVEL 1: The Wide Path (Intro)
-// Mucho más ancho para aprender los controles
+// --- NIVELES 1-10 (Básicos Hardcore) ---
+
+// LEVEL 1: Narrow Focus
 const L1 = parseMap(`
-IIIIII
-I..S.I
-I....I
-I=...I
-I....I
-I#=..I
-I....I
-IC...I
-I....I
-I..F.I
-IIIIII
+   IIII
+   IS.I
+   I.PI
+   I..I
+   I#.I
+   IP.I
+   I..I
+   IC.I
+   I.PI
+   IF.I
+   IIII
 `);
 
-// LEVEL 2: Gentle Curves
-// Curvas más suaves, sin esquinas de 90 grados cerradas
+// LEVEL 2: Sharp Turns
 const L2 = parseMap(`
-  IIIIII
- I...S..I
-I......I
-I=....I
-I.....I
-I.#=..I
-I.....I
- I=....I
- I.....I
-  I..F..I
-  IIIIIII
+    IIIII
+   I..S.I
+   I.P..I
+  I..=..I
+  I.PI.PI
+  I..I..I
+  I..=..I
+   IP...I
+   I.F..I
+   IIIIII
 `);
 
-// LEVEL 3: The Fork (Split Choice)
-// Caminos divididos pero con espacio suficiente (2 tiles min)
+// LEVEL 3: The Fork
 const L3 = parseMap(`
-   IIIIIII
-  I...S...I
-  IC.....CI
-  II#...#II
-  I..I.I..I
-  I..I.I..I
-  I=.I.I=.I
-  I..I.I..I
-  II.....II
-   I..F..I
-   IIIIIII
+    IIIIII
+   I..S...I
+   I.P.P..I
+   II#..#II
+   I.I.PI.I
+   I.I..I.I
+   I=I.PI=I
+   I.IP.I.I
+   II....II
+    I.F..I
+    IIIIII
 `);
 
-// LEVEL 4: The Forest
-// Árboles como obstáculos, pero con rutas claras alrededor
+// LEVEL 4: Slalom Tech
 const L4 = parseMap(`
- IIIIII
-I..S...I
-I..#=..I
-I...C..I
-I......I
-IC....#I
-I=.....I
-I#=...CI
-I......I
-I..F...I
-IIIIIIII
-`);
-
-// LEVEL 5: The Snake
-// Zig-zag rítmico pero ancho
-const L5 = parseMap(`
-      IIIIII
-      I..S.I
-     I.....I
-    I.....I
-   I=....I
-  I.....I
-  I=....I
- I.....I
- I=....I
-I.....I
-I=....I
-I..F.I
-IIIIII
-`);
-
-// LEVEL 6: Dual Highway
-// Dos carriles anchos separados por islas
-const L6 = parseMap(`
-   IIIIIII
-   I..S..I
-   I.....I
-  II#...#II
-  I...I...I
-  I...I...I
-  I=..I..=I
-  I...I...I
-  II.....II
-   I..F..I
-   IIIIIII
-`);
-
-// LEVEL 7: Slalom Rhythm
-// Obstáculos centrales para forzar movimiento lateral, pero con espacio
-const L7 = parseMap(`
- IIIIII
+  IIIII
  I.S..I
- I=...I
- I.C..I
- I...#I
- I#...I
- I.C..I
- I...=I
- I=...I
- I.C..I
+ I.#=.I
+ I.PC.I
+ I....I
+ IP#..I
+ I=..PI
+ I..C.I
+ I.P..I
  I.F..I
  IIIIII
 `);
 
-// LEVEL 8: The Hourglass
-// Se estrecha y se ensancha, pero el cuello de botella es pasable
-const L8 = parseMap(`
-   IIIIIII
-  I...S...I
-  I.......I
-   I.....I
-   I=...=I
-   I..I..I
-   I.....I
-   IC...CI
-   I.....I
-  I...F...I
-  IIIIIIIII
-`);
-
-// LEVEL 9: Hard Zig Zag
-// Curvas fuertes pero más anchas que antes
-const L9 = parseMap(`
-    IIIIII
-    I..S.I
-    I....I
-   I....I
+// LEVEL 5: The Corridor
+const L5 = parseMap(`
+      IIIII
+      I.S.I
+     I...I
+    I.P.I
    I=..I
-  I....I
-  I=..I
- I....I
+  IP..I
+  I#..I
+ I.P.I
  I=..I
-I..F.I
-IIIIII
+I...I
+I#P.I
+I.F.I
+IIIII
 `);
 
-// LEVEL 10: The Gauntlet (Final Challenge)
-// Difícil, pero justo. Sin muertes instantáneas injustas.
-const L10 = parseMap(`
-   IIIIIII
+// LEVEL 6: Lane Merge
+const L6 = parseMap(`
+    IIIIII
+    I.S..I
+    I.P..I
+   II#..#II
+   I..P...I
+   I..I.P.I
+   I=.I..=I
+   IP.I...I
+   II....II
+    I.F..I
+    IIIIII
+`);
+
+// LEVEL 7: Precision Braking
+const L7 = parseMap(`
+ IIIII
+ I.S.I
+ I.P.I
+ I.C.I
+ I.#.I
+ I.P.I
+ I.C.I
+ I.#.I
+ IP..I
+ I.C.I
+ I.F.I
+ IIIII
+`);
+
+// LEVEL 8: Hourglass
+const L8 = parseMap(`
+    IIIIII
    I..S..I
-   I#=..CI
-   II...II
-   I.....I
-  I...I...I
-  I=..I..=I
-  I...I...I
-   I.....I
-   II...II
+   I.P...I
+    I...I
+    I=I=I
+    I.P.I
+    I...I
+    ICPCI
+    I...I
    I..F..I
    IIIIIII
 `);
 
+// LEVEL 9: Zig Zag Pro
+const L9 = parseMap(`
+    IIIII
+    I.S.I
+    I.P.I
+   I...I
+   I=I
+  I.P.I
+  I=I
+ IP..I
+ I=I
+I.F.I
+IIIII
+`);
+
+// LEVEL 10: The Gauntlet
+const L10 = parseMap(`
+    IIIIII
+    I.S..I
+    I#=.CI
+    II.PII
+    I....I
+   I.PI..I
+   I=.I.=I
+   I..I.PI
+    I.P..I
+    II..II
+    I.F..I
+    IIIIII
+`);
+
+// --- NIVELES 11-25 (Nuevos Retos) ---
+
+// LEVEL 11: The Bridge
+const L11 = parseMap(`
+   IIIII
+   IISII
+   I.P.I
+   I.I.I
+   I.I.I
+   I.I.I
+   I.P.I
+   I.I.I
+   I.I.I
+   I.P.I
+   IIFII
+   IIIII
+`);
+
+// LEVEL 12: Checkerboard
+const L12 = parseMap(`
+  IIIIII
+  I.S..I
+  I.P..I
+  I.#.#I
+  I.C.CI
+  I#P#.I
+  I....I
+  I.#.#I
+  I.C.CI
+  I.P..I
+  I.F..I
+  IIIIII
+`);
+
+// LEVEL 13: Triple Threat
+const L13 = parseMap(`
+    IIIIIII
+   I...S...I
+   I...P...I
+   II#.#.#II
+   I.I.I.I.I
+   I=IPI.I=I
+   I.I.I.I.I
+   II#.#.#II
+   I...P...I
+    I..F..I
+    IIIIIII
+`);
+
+// LEVEL 14: Snowdrift
+const L14 = parseMap(`
+   IIIII
+   I.S.I
+   I===I
+   I.P.I
+   I=#=I
+   I.P.I
+   I===I
+   ICPCI
+   I.P.I
+   I.F.I
+   IIIII
+`);
+
+// LEVEL 15: The S-Bend
+const L15 = parseMap(`
+     IIIII
+    I.S..I
+    I.P..I
+   I....I
+   I=P.I
+  I...I
+  I.P.I
+   I..=I
+   I.P..I
+    I....I
+    I..F.I
+    IIIIII
+`);
+
+// LEVEL 16: The Wall
+const L16 = parseMap(`
+  IIIIII
+  I.S..I
+  I.P..I
+  I####I
+  I.PC.I
+  I....I
+  I####I
+  I.C.PI
+  I....I
+  I.F..I
+  IIIIII
+`);
+
+// LEVEL 17: Speed Trap
+const L17 = parseMap(`
+   IIIII
+   I.S.I
+   I.P.I
+   I...I
+   I.P.I
+   I.#.I
+   I#.#I
+   I.P.I
+   I...I
+   I.F.I
+   IIIII
+`);
+
+// LEVEL 18: Twin Snakes
+const L18 = parseMap(`
+    IIIIIII
+   I...S...I
+   II..P..II
+   I.I   I.I
+   I.I   I.I
+   I=I   I=I
+   IPI   IPI
+   II.....II
+    I..F..I
+    IIIIIII
+`);
+
+// LEVEL 19: The Box
+const L19 = parseMap(`
+  IIIIIII
+  I..S..I
+  I..P..I
+  I.###.I
+  I.#C#.I
+  I.###.I
+  IP...PI
+  I..F..I
+  IIIIIII
+`);
+
+// LEVEL 20: Coal Mine
+const L20 = parseMap(`
+  IIIII
+  I.S.I
+  I.C.I
+  ICPCI
+  I.C.I
+  I.P.I
+  IC.CI
+  I.C.I
+  ICPCI
+  I.F.I
+  IIIII
+`);
+
+// LEVEL 21: The Eye
+const L21 = parseMap(`
+   IIIIIII
+  I...S...I
+  I.IIIII.I
+  I.I.P.I.I
+  I.I.I.I.I
+  I.I.P.I.I
+  I.IIIII.I
+  I...P...I
+   I..F..I
+   IIIIIII
+`);
+
+// LEVEL 22: Broken Road
+const L22 = parseMap(`
+   IIIII
+   I.S.I
+   I=P.I
+   I..=I
+   I.#.I
+   I=P.I
+   I..=I
+   I.#.I
+   I.P.I
+   I.F.I
+   IIIII
+`);
+
+// LEVEL 23: The Chicane
+const L23 = parseMap(`
+    IIII
+    I.SI
+    IP.I
+   I..I
+   IP.I
+    I..I
+    IP.I
+   I..I
+   IP.I
+   IFI
+   IIII
+`);
+
+// LEVEL 24: Deep Freeze
+const L24 = parseMap(`
+  III
+  ISI
+  IPI
+  I=I
+  IPI
+  I#I
+  IPI
+  I.I
+  I#I
+  IPI
+  IFI
+  III
+`);
+
+// LEVEL 25: The Summit (Marathon Edition)
+// El jefe final definitivo. Muy largo.
+const L25 = parseMap(`
+    IIIIIII
+   I...S...I
+   I...P...I
+   II#...#II
+   I.I...I.I
+   I.I.P.I.I
+   I.I...I.I
+   II.....II
+   I...P...I
+   I.#####.I
+   I.#C.C#.I
+   I.#####.I
+   I...P...I
+   II#...#II
+   I.I...I.I
+   I.I.P.I.I
+   I.I...I.I
+   I.I...I.I
+   II.....II
+   I.PI.I..I
+   I..I.I.PI
+   I..I.I..I
+   I..I.I..I
+   II.....II
+   I...P...I
+   I.C...C.I
+   I..C.C..I
+   I.C...C.I
+   I...P...I
+   II#...#II
+   I.I...I.I
+   I=I.P.I=I
+   I.I...I.I
+   II.....II
+   I...P...I
+   I.#####.I
+   I.#...#.I
+   I.#.#.#.I
+   I.#.P.#.I
+   I.#####.I
+   I.......I
+   II#...#II
+   I.I...I.I
+   I.I.P.I.I
+   I.I...I.I
+   II.....II
+   I.......I
+   I...I...I
+   I.PI.I..I
+   I.I...I.I
+   I..I.IP.I
+   I...I...I
+   I.......I
+   I.C.C.C.I
+   I...P...I
+   I.C.C.C.I
+   I...P...I
+   I.C.C.C.I
+   I.......I
+   II#...#II
+   I.I...I.I
+   I.I.P.I.I
+   I.I...I.I
+   II.....II
+   I.......I
+   I..=P.=..I
+   I..=..=..I
+   I..=P.=..I
+   II......II
+   I........I
+   I...F....I
+   IIIIIIIIII
+`);
 
 export const LEVELS = [
-    L1, L2, L3, L4, L5, L6, L7, L8, L9, L10
+    L1, L2, L3, L4, L5, L6, L7, L8, L9, L10,
+    L11, L12, L13, L14, L15, L16, L17, L18, L19, L20,
+    L21, L22, L23, L24, L25
 ];

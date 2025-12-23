@@ -1,4 +1,5 @@
 import { LEVELS, TILE_TYPES, TILE_SIZE } from './levels.js';
+import { Progress, SKINS } from './progress.js';
 
 export class Game {
     constructor(canvas, assets, multiplayer) {
@@ -162,9 +163,10 @@ export class Game {
         if (this.state === 'TRANSITION') return;
         this.state = 'TRANSITION';
         this.transitionTimer = 0;
-        this.transitionPhase = 'OUT';
-        this.transitionAlpha = 0;
+        this.transitionDuration = 1.0; // Total 1 second
+        this.switchedLevel = false;
     }
+
 
     _advanceLevelLogic() {
         this.currentLevelIndex++;
@@ -186,26 +188,117 @@ export class Game {
         this.joystickInput = { x, y };
     }
 
+    updateScoreUI() {
+        const el = document.getElementById('score');
+        if (el) {
+            // Show "Current Session (+Total Wallet)"
+            const wallet = Progress.getPresents();
+            // Often games show just wallet if score == wallet gain.
+            // But here score is manual session score.
+            // User requested "que salga los regalos que tienes en numero".
+            // Maybe simply: 5 (Total: 120) ?
+            // Or simply the wallet? "120"
+            // I will show "Wallet"
+            el.innerText = wallet;
+        }
+    }
+
+    triggerBomb() {
+        // Find obstacles in radius
+        const radius = 3; // tiles
+        const centerR = Math.floor(this.player.y / TILE_SIZE);
+        const centerC = Math.floor(this.player.x / TILE_SIZE);
+
+        let exploded = false;
+
+        for (let r = centerR - radius; r <= centerR + radius; r++) {
+            for (let c = centerC - radius; c <= centerC + radius; c++) {
+                if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
+                    // Destroy standard obstacles and trees/snowmen (which are also type 4 or distinct?)
+                    // In levels.js:
+                    // OBSTACLE: 4
+                    // TREE? No explicit type in TILE_TYPES for TREE, they are just decorations?
+                    // Wait, TILE_TYPES in levels.js:
+                    // EMPTY: 0, ICE: 1, START: 2, FINISH: 3, OBSTACLE: 4, PRESENT: 5, COAL: 6, SNOW: 7, ICEBERG: 8, ICE_BLOCK: 9
+                    // Trees and Snowmen are just obstacles (4) ?
+                    // Let's check levels.js to be sure.
+                    // '#' -> OBSTACLE.
+                    // 'C' -> COAL (Wait, previous summary said Tree? No, C is Coal in map?)
+                    // Summary said: "increased density of TREE ('C') and SNOWMAN ('#')".
+                    // Wait, CHAR_MAP: 'C': TILE_TYPES.COAL.
+                    // 'T'? There is no T.
+                    // Assets has 'tree'.
+                    // Maybe 'C' is rendered as Tree?
+                    // Let's assume Type 4, 6, 8, 9 are solid.
+                    const type = this.level[r][c];
+                    if (type === TILE_TYPES.OBSTACLE || type === TILE_TYPES.COAL || type === TILE_TYPES.ICE_BLOCK) {
+                        this.level[r][c] = TILE_TYPES.SNOW;
+                        exploded = true;
+                    }
+                }
+            }
+        }
+
+
+        if (exploded) {
+            // Particle System
+            if (!this.particles) this.particles = [];
+            const px = (centerC * TILE_SIZE) + (TILE_SIZE / 2);
+            const py = (centerR * TILE_SIZE) + (TILE_SIZE / 2);
+            for (let i = 0; i < 30; i++) {
+                this.particles.push({
+                    x: px + (Math.random() - 0.5) * 50,
+                    y: py + (Math.random() - 0.5) * 50,
+                    vx: (Math.random() - 0.5) * 800,
+                    vy: (Math.random() - 0.5) * 800,
+                    life: 0.8,
+                    color: Math.random() > 0.5 ? '#ff4444' : '#ffff00',
+                    size: Math.random() * 15 + 5
+                });
+            }
+            this.shake = 0.4; // Screen wake
+
+            this.assets.play('crash');
+        }
+        return exploded;
+    }
+
     update(dt) {
+        // Update Shake
+        if (this.shake > 0) {
+            this.shake -= dt;
+            if (this.shake < 0) this.shake = 0;
+        }
+
+        // Update Particles
+        if (this.particles) {
+            for (let i = this.particles.length - 1; i >= 0; i--) {
+                const p = this.particles[i];
+                p.life -= dt;
+                if (p.life <= 0) {
+                    this.particles.splice(i, 1);
+                    continue;
+                }
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.vy += 500 * dt; // Gravity
+            }
+        }
         // Handle Transition State
         if (this.state === 'TRANSITION') {
             this.transitionTimer += dt;
-            // Fade Out (Cover screen)
-            if (this.transitionPhase === 'OUT') {
-                this.transitionAlpha = Math.min(1, this.transitionTimer / 0.5);
-                if (this.transitionTimer >= 0.5) {
-                    this.transitionPhase = 'IN';
-                    this.transitionTimer = 0;
-                    this._advanceLevelLogic();
-                }
+            const t = this.transitionTimer / this.transitionDuration; // 0 to 1
+
+            // Middle point (0.5) - Switch Level
+            if (t >= 0.5 && !this.switchedLevel) {
+                this.switchedLevel = true;
+                this._advanceLevelLogic();
             }
-            // Fade In (Reveal new level)
-            else {
-                this.transitionAlpha = Math.max(0, 1 - (this.transitionTimer / 0.5));
-                if (this.transitionTimer >= 0.5) {
-                    this.state = 'PLAYING';
-                    this.transitionAlpha = 0;
-                }
+
+            // End Transition
+            if (t >= 1.0) {
+                this.state = 'PLAYING';
+                this.transitionTimer = 0;
             }
             return;
         }
@@ -360,12 +453,15 @@ export class Game {
 
             // Collectibles
             if (tile === TILE_TYPES.PRESENT) {
-                this.score += 100;
+                this.score += 1; // Changed from 100 to 1 as requested
                 this.level[safeRow][safeCol] = TILE_TYPES.ICE; // Remove present
                 this.assets.play('collect');
-                // Play sound?
+
+                // Add currency permanently
+                Progress.addPresents(1);
+
                 // Update UI
-                document.getElementById('score').innerText = this.score;
+                this.updateScoreUI();
             }
         }
         else if (this.state === 'DYING') {
@@ -402,6 +498,9 @@ export class Game {
     }
 
     victory() {
+        // Track Progress
+        Progress.completeLevel(this.currentLevelIndex);
+
         if (this.state === 'WIN') return;
         this.state = 'WIN';
 
@@ -414,15 +513,28 @@ export class Game {
         document.getElementById('hud').classList.add('hidden');
     }
 
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.save();
-        this.ctx.translate(-Math.floor(this.camera.x), -Math.floor(this.camera.y));
 
+        // Screen Shake
+        let shakeX = 0;
+        let shakeY = 0;
+        if (this.shake > 0) {
+            shakeX = (Math.random() - 0.5) * 30 * (this.shake / 0.4);
+            shakeY = (Math.random() - 0.5) * 30 * (this.shake / 0.4);
+        }
 
-        const viewX = this.camera.x;
-        const viewY = this.camera.y;
+        // Camera Logic
+        const camX = Math.floor(this.camera.x + shakeX);
+        const camY = Math.floor(this.camera.y + shakeY);
+
+        this.ctx.translate(-camX, -camY);
+
+        const viewX = camX;
+        const viewY = camY;
         const viewW = this.canvas.width;
         const viewH = this.canvas.height;
 
@@ -536,12 +648,79 @@ export class Game {
             }
         }
 
+
+        // Draw Particles
+        if (this.particles) {
+            this.particles.forEach(p => {
+                this.ctx.globalAlpha = Math.max(0, p.life); // Fade out
+                this.ctx.fillStyle = p.color;
+                this.ctx.beginPath();
+                this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                this.ctx.fill();
+            });
+            this.ctx.globalAlpha = 1.0;
+        }
+
         this.ctx.restore();
 
-        // Draw Transition Overlay
-        if (this.state === 'TRANSITION' && this.transitionAlpha > 0) {
-            this.ctx.fillStyle = `rgba(0, 0, 0, ${this.transitionAlpha})`;
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Draw Transition Overlay (Radial Red Curtain)
+        if (this.state === 'TRANSITION') {
+            const t = this.transitionTimer / this.transitionDuration; // 0 to 1
+            const width = this.canvas.width;
+            const height = this.canvas.height;
+            const maxRadius = Math.hypot(width / 2, height / 2);
+
+            // 3 Phases for 1 Second duration:
+            // 0.0 - 0.35: Close (Snappy)
+            // 0.35 - 0.65: Hold Closed (Show Number)
+            // 0.65 - 1.0: Open (Snappy)
+
+            let radius;
+            if (t < 0.35) {
+                // Closing
+                const progress = t / 0.35;
+                // Cubic ease out for snap
+                radius = maxRadius * (1 - Math.pow(progress, 3));
+            } else if (t > 0.65) {
+                // Opening
+                const progress = (t - 0.65) / 0.35;
+                // Cubic ease in
+                radius = maxRadius * Math.pow(progress, 3);
+            } else {
+                // Hold fully closed
+                radius = 0;
+            }
+
+            // Draw Red Overlay with Hole
+            this.ctx.save();
+            this.ctx.fillStyle = '#ff0000';
+
+            this.ctx.beginPath();
+            this.ctx.rect(0, 0, width, height);
+            this.ctx.arc(width / 2, height / 2, Math.max(0, radius), 0, Math.PI * 2, true);
+            this.ctx.closePath();
+            this.ctx.fill();
+
+            // Draw Number in Center (during Hold phase)
+            if (t >= 0.35 && t <= 0.65) {
+                this.ctx.save();
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '900 150px "Outfit", sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                this.ctx.shadowBlur = 20;
+
+                let text = (this.currentLevelIndex + 1).toString();
+                if (this.currentLevelIndex === -1 && this.customLevelData) text = "C";
+
+                // Scale effect for the number? Pop in?
+                // Let's just draw it static or slight scale
+                this.ctx.fillText(text, width / 2, height / 2);
+                this.ctx.restore();
+            }
+
+            this.ctx.restore();
         }
     }
 
@@ -578,12 +757,28 @@ export class Game {
         // Always rotate
         this.ctx.rotate(entity.angle);
 
-        // Draw centered
+        // Skin Tinting Logic
+        let tint = null;
+        if (!isGhost) {
+            const skin = Progress.getSelectedSkin();
+            if (skin && skin.tint && skin.tint !== '#ffffff') tint = skin.tint;
+        }
+
+        // Draw Sprite
         this.ctx.drawImage(
             sprite,
             sx, sy, frameW, frameH,
             -renderW / 2, -renderH / 2, renderW, renderH
         );
+
+        // Apply Tint if needed
+        if (tint) {
+            // Use source-atop to only color where the sprite is opaque
+            this.ctx.globalCompositeOperation = 'source-atop';
+            this.ctx.fillStyle = tint;
+            this.ctx.globalAlpha = 0.5; // 50% tint strength so we don't lose texture
+            this.ctx.fillRect(-renderW / 2, -renderH / 2, renderW, renderH);
+        }
 
         if (isGhost) {
             // Restore rotation for text so it is always upright

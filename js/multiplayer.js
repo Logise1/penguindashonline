@@ -131,9 +131,30 @@ export class Multiplayer {
         // Just the count of people visible locally
         // We can just count total keys in server data if we want global count, 
         // but this.players is filtered by self.
-        const count = Object.keys(this.players).length + 1;
-        const el = document.getElementById('online-count');
-        if (el) el.innerText = count;
+        const players = Object.values(this.players);
+        const count = players.length + 1; // +1 for self
+
+        const countEl = document.getElementById('online-count');
+        if (countEl) countEl.innerText = count;
+
+        const listEl = document.querySelector('.online-list');
+        if (listEl) {
+            let html = `<div style="color: #00ff00; font-weight:bold;">${this.name} (You)</div>`;
+
+            // Limit list to last 10 or so to avoid flooding UI
+            const others = players.slice(0, 10);
+            others.forEach(p => {
+                // Use name or ID
+                const n = p.data.name || "Unknown";
+                html += `<div style="color: rgba(255,255,255,0.7);">${n}</div>`;
+            });
+
+            if (players.length > 10) {
+                html += `<div style="font-style:italic; opacity:0.5;">+${players.length - 10} more</div>`;
+            }
+
+            listEl.innerHTML = html;
+        }
     }
 
     leave() {

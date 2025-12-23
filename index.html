@@ -49,8 +49,26 @@
                 <input type="text" id="name-input" placeholder="Nickname" maxlength="10">
                 <button id="start-btn" class="btn">PLAY</button>
                 <div style="height:10px"></div>
-                <button id="editor-btn" class="btn" style="background-color: #9900cc;"
-                    onclick="window.location.href='editor.html'">LEVEL EDITOR</button>
+
+                <div style="display: flex; gap: 10px; width: 80%; max-width:300px;">
+                    <button id="shop-btn" class="btn" style="background-color: #ffcc00; flex:1;">SHOP 🎁</button>
+                    <button id="editor-btn" class="btn" style="background-color: #9900cc; flex:1;"
+                        onclick="window.location.href='editor.html'">EDITOR</button>
+                </div>
+            </div>
+
+            <!-- Shop Screen -->
+            <div id="shop-screen" class="screen hidden"
+                style="background: rgba(0,0,0,0.95); width: 90%; max-width: 600px; height: 80vh;">
+                <div
+                    style="display:flex; justify-content:space-between; width:100%; padding: 0 20px; box-sizing:border-box; align-items:center;">
+                    <h2>SKIN SHOP</h2>
+                    <h3 style="color:#ffcc00;"><span id="shop-currency">0</span> 🎁</h3>
+                </div>
+                <div id="shop-items" style="flex:1; overflow-y:auto; width:100%;">
+                    <!-- Items injected by JS -->
+                </div>
+                <button id="shop-close-btn" class="btn" style="background:#ff4444; margin-top:10px;">CLOSE</button>
             </div>
             <div id="game-over-screen" class="screen hidden">
                 <h1>GAME OVER</h1>
@@ -63,10 +81,24 @@
                     <img src="img/element-present1.png" alt="Score">
                     <span id="score">0</span>
                 </div>
-                <!-- Maybe show online count? -->
-                <div class="online-container" style="position:absolute; bottom: 1rem; right: 1rem; color: white;">
-                    <span id="online-count">1</span> Online
+                <!-- Online Count & List -->
+                <div class="online-container"
+                    style="position:absolute; top: 2rem; right: 2rem; color: white; display:flex; flex-direction:column; align-items:flex-end;">
+                    <div style="font-size: 1.5rem; font-weight:bold; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                        <span style="color:#00ff00;">●</span> <span id="online-count">1</span> ONLINE
+                    </div>
                 </div>
+
+                <!-- HUD Buttons -->
+                <button id="hud-menu-btn" class="btn"
+                    style="position: absolute; top: 5rem; left: 2rem; padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 10px; background: #9900cc; min-width: auto; z-index: 100; pointer-events: auto;">SHOP
+                    / MENU</button>
+
+                <button id="hud-bomb-btn" class="btn"
+                    style="position: absolute; bottom: 2rem; right: 2rem; padding: 1rem; font-size: 1.2rem; border-radius: 50px; background: #ff4444; width: 80px; height: 80px; border: 4px solid white; display:flex; flex-direction:column; justify-content:center; align-items:center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 100; pointer-events: auto;">
+                    <span>💣</span>
+                    <span style="font-size:0.8rem; margin-top:-5px;">5🎁</span>
+                </button>
             </div>
             <div id="joystick-zone">
                 <div id="joystick-knob"></div>

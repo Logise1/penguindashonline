@@ -171,6 +171,33 @@ class Editor {
             window.location.href = 'index.html?test=true';
         };
 
+
+        document.getElementById('import-btn').onclick = () => {
+            const json = prompt("Paste the Level JSON code here:");
+            if (json) {
+                try {
+                    const grid = JSON.parse(json);
+                    // Validate basic structure
+                    if (Array.isArray(grid) && Array.isArray(grid[0])) {
+                        this.grid = grid;
+                        this.width = grid[0].length;
+                        this.height = grid.length;
+                        this.renderGrid();
+                        this.saveToStorage();
+                        // Update inputs
+                        document.getElementById('w-input').value = this.width;
+                        document.getElementById('h-input').value = this.height;
+                        alert("Level imported successfully!");
+                    } else {
+                        alert("Invalid JSON format (Not a grid?)");
+                    }
+                } catch (e) {
+                    alert("Invalid JSON code!");
+                    console.error(e);
+                }
+            }
+        };
+
         document.getElementById('copy-btn').onclick = () => {
             const json = JSON.stringify(this.grid);
             navigator.clipboard.writeText(json).then(() => alert("Level JSON copied to clipboard!"));
