@@ -204,9 +204,9 @@ const L10 = parseMap(`
 const L11 = parseMap(`
    IIIII
    IISII
-   I.P.I
-   I.I.I
-   I.I.I
+   I...I
+   I...I
+   I...I
    I.I.I
    I.P.I
    I.I.I
@@ -223,7 +223,7 @@ const L12 = parseMap(`
   I.P..I
   I.#.#I
   I.C.CI
-  I#P#.I
+  I#P..I
   I....I
   I.#.#I
   I.C.CI
